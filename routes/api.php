@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BookMarkController;
 use App\Http\Controllers\CafeShopController;
+use App\Http\Controllers\RateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +29,22 @@ Route::group([
     Route::post('/store',[CafeShopController::class,'store']);
     Route::post('/update/{id}',[CafeShopController::class,'update']);
     Route::get('/show/{id}',[CafeShopController::class,'show']);
-    Route::delete('/delete/{id}',[CafeShopController::class,'delete']);
+    Route::delete('/delete/{id}',[CafeShopController::class,'destroy']);
     Route::post('/search',[CafeShopController::class,'searchShop']);
+    Route::get('/date',[CafeShopController::class,'testDate']);
+    Route::post('/rate',[RateController::class,'getRate']);
+    Route::post('/createRate',[RateController::class,'createRate']);
 });
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'bookmark'
 
+], function () {
+    Route::post('/create',[BookMarkController::class,'create']);
+  
+   Route::post('/delete',[BookMarkController::class,'delete']);
+   
+  
+});
 
 

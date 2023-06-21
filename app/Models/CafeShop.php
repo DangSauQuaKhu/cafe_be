@@ -26,7 +26,8 @@ class CafeShop extends Model
         'total_seats',
         'empty_seats',
         'user_id',
-        'star'
+        'star',
+        'isOpen'
     ];
     public $timestamps = false;
 
