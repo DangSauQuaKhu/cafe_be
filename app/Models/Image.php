@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CafeShop extends Model
+class Image extends Model
 {
     use HasFactory;
 
@@ -15,19 +15,8 @@ class CafeShop extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'address',
-        'city',
-        'phone_number',
-        'time_open',
-        'time_close',
-        'photoUrl',
-        'air_conditioner',
-        'user_id',
-        'star',
-        'isOpen',
-        'approve'
+        'cafeShop_id',
+        'photoURL'
     ];
     public $timestamps = false;
-
 }

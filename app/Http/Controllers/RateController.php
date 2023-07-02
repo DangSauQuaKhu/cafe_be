@@ -6,7 +6,7 @@ use App\Models\Rate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class RateController extends Controller
 {
     public function getRate(Request $request)
@@ -30,11 +30,18 @@ class RateController extends Controller
         if ($validator->fails()) {
           return response()->json(['error'=> true,'message'=>$validator->errors()]);
         }
+        if(Auth::check())
+        {
+            $userid = Auth::id();
+        }
+        else{
+            return response()->json(['error'=> true,'message'=>"Login to Continue"]);
+        }
         $dataInsert = [
             'cafeShop_id' => $request->cafeShop_id,
             'star' => $request->star,
             'content' => $request->content,
-            'user_id' => 3
+            'user_id' => $userid
         ];
         $newRate = Rate::create($dataInsert);
         // echo $dataInsert['photoURL'];

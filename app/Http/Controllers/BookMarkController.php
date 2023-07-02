@@ -6,10 +6,18 @@ use App\Models\UserBookmark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 class BookMarkController extends Controller
 {
     public function create(Request $request)
     {
+        if(Auth::check())
+        {
+            $userid = Auth::id();
+        }
+        else{
+            return response()->json(['error'=> true,'message'=>"Login to Continue"]);
+        }
         $rule = array(
             'cafeShop_id' => 'required|integer',
         );
@@ -20,7 +28,7 @@ class BookMarkController extends Controller
      
         $dataInsert = [
             'cafeShop_id'=>$request->cafeShop_id,
-            'user_id'=>3
+            'user_id'=>$userid
         ];
         $newBookmark = UserBookmark::create($dataInsert);
         // echo $dataInsert['photoURL'];
@@ -31,6 +39,13 @@ class BookMarkController extends Controller
         $rule = array(
             'cafeShop_id' => 'required|integer',
         );
+        if(Auth::check())
+        {
+            $userid = Auth::id();
+        }
+        else{
+            return response()->json(['error'=> true,'message'=>"Login to Continue"]);
+        }
         $validator =  Validator::make($request->all(), $rule);
         if ($validator->fails()) {
             
@@ -39,7 +54,7 @@ class BookMarkController extends Controller
         $bookmark = UserBookmark::where(
             [
                 ['cafeShop_id', '=', $request->cafeShop_id],
-                ['user_id', '=', 3]
+                ['user_id', '=',  $userid]
             ]
         )->delete();
     
@@ -47,5 +62,21 @@ class BookMarkController extends Controller
         return response()->json(['status'=>"unbookmark successfully!"]);
        
        
+    }
+    public function getBookMark()
+    {
+        if(Auth::check())
+        {
+            $userid = Auth::id();
+        }
+        else{
+            return response()->json(['error'=> true,'message'=>"Login to Continue"]);
+        }
+        $bookmark = UserBookmark::where(
+            [
+                ['user_id', '=',  $userid]
+            ]
+        )->paginate(4);
+        return $bookmark;
     }
 }

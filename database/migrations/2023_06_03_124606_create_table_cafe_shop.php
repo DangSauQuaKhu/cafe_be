@@ -19,10 +19,9 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('time_open');
             $table->string('time_close');
-            $table->string('photoUrl')->nullable();
+           // $table->string('photoUrl')->nullable();
             $table->boolean('air_conditioner');
-            $table->integer('total_seats');
-            $table->integer('empty_seats');
+            $table->integer('approve')->default(0);
             $table->integer('user_id');
             //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

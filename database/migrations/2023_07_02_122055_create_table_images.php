@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_bookmarks', function (Blueprint $table) {
+        Schema::create('table_images', function (Blueprint $table) {
             $table->integer('cafeShop_id');
-            $table->integer('user_id');
-            $table->timestamps();
+            $table->string('photoUrl')->nullable();
         });
     }
 
@@ -23,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_user_bookmark');
+        Schema::dropIfExists('table_images');
     }
 };
