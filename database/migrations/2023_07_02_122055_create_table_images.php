@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_images', function (Blueprint $table) {
-            $table->integer('cafeShop_id');
+        Schema::create('images', function (Blueprint $table) {
+            $table->integer('cafeShop_id')->references('id')->on('cafe_shops')->onDelete('cascade');;
             $table->string('photoUrl')->nullable();
         });
     }
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_images');
+        Schema::dropIfExists('images');
     }
 };

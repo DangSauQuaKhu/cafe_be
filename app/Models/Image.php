@@ -14,9 +14,11 @@ class Image extends Model
      *
      * @var array<int, string>
      */
+    protected $table = 'images';
+
     protected $fillable = [
         'cafeShop_id',
-        'photoURL'
+        'photoUrl'
     ];
     public $timestamps = false;
 }

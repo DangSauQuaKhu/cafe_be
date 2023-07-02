@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CafeShopResource;
 use App\Models\CafeShop;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,8 @@ class CafeShopController extends Controller
                 ->where("cafeShop_id", "=", $shop->id)->first();
             $shop->star = $star->star;
             $shop->isOpen = $this->testDate($shop->time_open, $shop->time_close);
+
+            $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->first()->photoUrl;
         }
 
 
@@ -32,7 +35,9 @@ class CafeShopController extends Controller
     {
         //
         $shops = CafeShop::where('approve', '=', '0')->paginate(3);
-
+        foreach ($shops as $shop) {
+            $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->first()->photoUrl;
+        }
         return CafeShopResource::collection($shops);
     }
     public function store(Request $request)
@@ -55,13 +60,8 @@ class CafeShopController extends Controller
         if ($validator->fails()) {
             return $validator->errors();
         }
-        $Shop = new CafeShop();
-        if ($request->hasFile('image')) {  // echo "have file";
-            $file = $request->file('image');
-            $filePath = $file->store('images', 's3');
-            Storage::disk('s3')->setVisibility($filePath, 'public');
-            $Shop->photoUrl = Storage::disk('s3')->url($filePath);
-        }
+        //  $Shop = new CafeShop();
+
         $dataInsert = [
             'name' => $request->name,
             'address' => $request->address,
@@ -71,10 +71,22 @@ class CafeShopController extends Controller
             'time_close' => $request->time_close,
             'air_conditioner' => $request->air_conditioner,
             'user_id' => $userid,
-            'photoUrl' => $Shop->photoUrl
+            //    'photoUrl' => $Shop->photoUrl
         ];
         $newShop = CafeShop::create($dataInsert);
-        // echo $dataInsert['photoURL'];
+        if ($files = $request->file('image')) {
+            foreach ($files as $file) {
+                $filePath = $file->store('images', 's3');
+                Storage::disk('s3')->setVisibility($filePath, 'public');
+                $photoUrl = Storage::disk('s3')->url($filePath);
+                $data = [
+                    'cafeShop_id' => $newShop->id,
+                    'photoUrl' => $photoUrl
+                ];
+                Image::create($data);
+            }
+        }
+        $newShop->photoUrl = Image::where('cafeShop_id', '=', $newShop->id)->selectRaw('photoUrl')->get();
         return $newShop;
     }
     public function show($id)
@@ -97,7 +109,7 @@ class CafeShopController extends Controller
         else
             $shop->bookmark = true;
         $shop->isOpen = $this->testDate($shop->time_open, $shop->time_close);
-
+        $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->get();
 
         return new CafeShopResource($shop);
     }
@@ -109,8 +121,8 @@ class CafeShopController extends Controller
             return response()->json(['error' => true, 'message' => "Login to Continue"]);
         }
         $shoptUpdate = CafeShop::where([
-            ['user_id','=',$userid],
-            ['id','=',$id]
+            ['user_id', '=', $userid],
+            ['id', '=', $id]
         ])->first();
 
         $rule = array(
@@ -126,12 +138,19 @@ class CafeShopController extends Controller
         if ($validator->fails()) {
             return $validator->errors();
         }
-        $newShop = new CafeShop();
-        if ($request->hasFile('image')) {  // echo "have file";
-            $file = $request->file('image');
-            $filePath = $file->store('images', 's3');
-            Storage::disk('s3')->setVisibility($filePath, 'public');
-            $newShop->photoUrl = Storage::disk('s3')->url($filePath);
+        Image::where('cafeShop_id','=',$id)->delete();
+        if ($files = $request->file('image')) {
+
+            foreach ($files as $file) {
+                $filePath = $file->store('images', 's3');
+                Storage::disk('s3')->setVisibility($filePath, 'public');
+                $photoUrl = Storage::disk('s3')->url($filePath);
+                $data = [
+                    'cafeShop_id' => $id,
+                    'photoUrl' => $photoUrl
+                ];
+                Image::create($data);
+            }
         }
         $dataInsert = [
             'name' => $request->name,
@@ -142,10 +161,10 @@ class CafeShopController extends Controller
             'time_close' => $request->time_close,
             'air_conditioner' => $request->air_conditioner,
             'user_id' => $userid,
-            'photoUrl' => $newShop->photoUrl
         ];
         // echo $dataInsert['photoURL'];
         $shoptUpdate->update($dataInsert);
+        $shoptUpdate->photoUrl = Image::where('cafeShop_id', '=', $shoptUpdate->id)->selectRaw('photoUrl')->get();
         return $shoptUpdate;
     }
     public function destroy($id)
@@ -162,7 +181,7 @@ class CafeShopController extends Controller
 
         // if($shopDelete->user->id != $userid ) return response()->json(['error' =>true,'message'=> 'Unauthorized'], 401);
 
-       
+
         return $userid;
     }
     public function searchShop(Request $keyword)
@@ -186,6 +205,7 @@ class CafeShopController extends Controller
                 ->where("cafeShop_id", "=", $shop->id)->first();
             $shop->star = $star->star;
             $shop->isOpen = $this->testDate($shop->time_open, $shop->time_close);
+            $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->first()->photoUrl;
         }
 
 
@@ -276,7 +296,9 @@ class CafeShopController extends Controller
                 ['user_id', '=', $userid]
             ]
         )->paginate(3);
-
+        foreach ($shops as $shop) {
+            $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->first()->photoUrl;
+        }
         return CafeShopResource::collection($shops);
     }
 }

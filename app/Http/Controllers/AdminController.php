@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CafeShop;
+use App\Models\Rate;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserBookmark;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
@@ -43,6 +45,9 @@ class AdminController extends Controller
         return response()->json(['error'=> true,'message'=>"Login to Continue"]);
     }
        User::where('id','=',$request->id)->delete();
+       CafeShop::where('user_id','=',$request->id)->delete();
+       Rate::where('user_id','=',$request->id)->delete();
+       UserBookmark::where('user_id','=',$request->id)->delete();
    }
    public function registerSubAdmin(Request $request) {
     if(Auth::check())

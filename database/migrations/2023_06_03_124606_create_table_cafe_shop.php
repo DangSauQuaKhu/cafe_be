@@ -22,7 +22,7 @@ return new class extends Migration
            // $table->string('photoUrl')->nullable();
             $table->boolean('air_conditioner');
             $table->integer('approve')->default(0);
-            $table->integer('user_id');
+            $table->integer('user_id')->references('id')->on('users')->onDelete('cascade');
             //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_bookmarks', function (Blueprint $table) {
-            $table->integer('cafeShop_id');
-            $table->integer('user_id');
+            $table->integer('cafeShop_id')->references('id')->on('cafe_shops')->onDelete('cascade');;
+            $table->integer('user_id')->references('id')->on('users')->onDelete('cascade');;
             $table->timestamps();
         });
     }
