@@ -71,8 +71,9 @@ class CafeShopController extends Controller
             'user_id' => $userid,
             //    'photoUrl' => $Shop->photoUrl
         ];
-        $newShop = CafeShop::create($dataInsert);
-        if ($files = $request->file('image')) {
+       
+        if ($files = $request->file('photoUrl')) {
+            $newShop = CafeShop::create($dataInsert);
             foreach ($files as $file) {
                 $filePath = $file->store('images', 's3');
                 Storage::disk('s3')->setVisibility($filePath, 'public');
@@ -83,9 +84,12 @@ class CafeShopController extends Controller
                 ];
                 Image::create($data);
             }
+            $newShop->photoUrl = Image::where('cafeShop_id', '=', $newShop->id)->selectRaw('photoUrl')->get();
+            return $newShop;
+            
         }
-        $newShop->photoUrl = Image::where('cafeShop_id', '=', $newShop->id)->selectRaw('photoUrl')->get();
-        return $newShop;
+        return response()->json(['error' => true, 'message' => "can't store"]);
+        
     }
     public function show($id)
     {
@@ -135,9 +139,9 @@ class CafeShopController extends Controller
         if ($validator->fails()) {
             return $validator->errors();
         }
-        Image::where('cafeShop_id','=',$id)->delete();
-        if ($files = $request->file('image')) {
-
+      
+        if ($files = $request->file('photoUrl')) {
+            Image::where('cafeShop_id','=',$id)->delete();
             foreach ($files as $file) {
                 $filePath = $file->store('images', 's3');
                 Storage::disk('s3')->setVisibility($filePath, 'public');
