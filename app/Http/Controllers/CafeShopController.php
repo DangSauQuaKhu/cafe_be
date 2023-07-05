@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+
 class CafeShopController extends Controller
 {
     public function index()
@@ -54,6 +55,7 @@ class CafeShopController extends Controller
             'time_open' => 'required|string',
             'time_close' => 'required|string',
             'air_conditioner' => 'required|between:0,1',
+            'photoUrl' => 'required'
         );
         $validator =  Validator::make($request->all(), $rule);
         if ($validator->fails()) {
@@ -69,27 +71,35 @@ class CafeShopController extends Controller
             'time_close' => $request->time_close,
             'air_conditioner' => $request->air_conditioner,
             'user_id' => $userid,
-            //    'photoUrl' => $Shop->photoUrl
+
         ];
-       
-        if ($files = $request->file('photoUrl')) {
-            $newShop = CafeShop::create($dataInsert);
+        $newShop = CafeShop::create($dataInsert);
+        if ($files = $request->photoUrl) {
             foreach ($files as $file) {
-                $filePath = $file->store('images', 's3');
-                Storage::disk('s3')->setVisibility($filePath, 'public');
-                $photoUrl = Storage::disk('s3')->url($filePath);
                 $data = [
                     'cafeShop_id' => $newShop->id,
-                    'photoUrl' => $photoUrl
+                    'photoUrl' => $file
                 ];
                 Image::create($data);
             }
+        }
+        //     $newShop = CafeShop::create($dataInsert);
+        //     foreach ($files as $file) {
+        //         $filePath = $file->store('images', 's3');
+        //         Storage::disk('s3')->setVisibility($filePath, 'public');
+        //         $photoUrl = Storage::disk('s3')->url($filePath);
+        //         $data = [
+        //             'cafeShop_id' => $newShop->id,
+        //             'photoUrl' => $photoUrl
+        //         ];
+        //         Image::create($data);
+        //     }
             $newShop->photoUrl = Image::where('cafeShop_id', '=', $newShop->id)->selectRaw('photoUrl')->get();
             return $newShop;
-            
-        }
-        return response()->json(['error' => true, 'message' => "can't store"]);
-        
+
+        // }
+
+
     }
     public function show($id)
     {
@@ -112,7 +122,7 @@ class CafeShopController extends Controller
             $shop->bookmark = true;
         $shop->isOpen = $this->testDate($shop->time_open, $shop->time_close);
         $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->get();
-        $shop->user = User::where('id','=',$shop->user_id)->first();
+        $shop->user = User::where('id', '=', $shop->user_id)->first();
         return new CafeShopResource($shop);
     }
     public function update(Request $request, $id)
@@ -134,25 +144,35 @@ class CafeShopController extends Controller
             'time_open' => 'required|string',
             'time_close' => 'required|string',
             'air_conditioner' => 'required|between:0,1',
+            'photoUrl' => 'required'
         );
         $validator =  Validator::make($request->all(), $rule);
         if ($validator->fails()) {
             return $validator->errors();
         }
-      
-        if ($files = $request->file('photoUrl')) {
-            Image::where('cafeShop_id','=',$id)->delete();
+        if ($files = $request->photoUrl) {
             foreach ($files as $file) {
-                $filePath = $file->store('images', 's3');
-                Storage::disk('s3')->setVisibility($filePath, 'public');
-                $photoUrl = Storage::disk('s3')->url($filePath);
                 $data = [
                     'cafeShop_id' => $id,
-                    'photoUrl' => $photoUrl
+                    'photoUrl' => $file
                 ];
                 Image::create($data);
             }
         }
+
+        // if ($files = $request->file('photoUrl')) {
+        //     Image::where('cafeShop_id','=',$id)->delete();
+        //     foreach ($files as $file) {
+        //         $filePath = $file->store('images', 's3');
+        //         Storage::disk('s3')->setVisibility($filePath, 'public');
+        //         $photoUrl = Storage::disk('s3')->url($filePath);
+        //         $data = [
+        //             'cafeShop_id' => $id,
+        //             'photoUrl' => $photoUrl
+        //         ];
+        //         Image::create($data);
+        //     }
+        // }
         $dataInsert = [
             'name' => $request->name,
             'address' => $request->address,
