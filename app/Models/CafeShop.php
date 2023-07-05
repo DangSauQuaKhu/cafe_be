@@ -17,7 +17,6 @@ class CafeShop extends Model
     protected $fillable = [
         'name',
         'address',
-        'city',
         'phone_number',
         'time_open',
         'time_close',

@@ -47,6 +47,7 @@ Route::group([
 
     Route::post('/delete', [BookMarkController::class, 'delete']);
     Route::get('/getall', [BookMarkController::class, 'getBookMark']);
+    Route::post('/bookmarksearch', [BookMarkController::class, 'searchBookMark']);
 });
 Route::group([
     'middleware' => 'api',

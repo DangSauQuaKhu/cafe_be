@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\User;
 class CafeShopController extends Controller
 {
     public function index()
@@ -50,7 +50,6 @@ class CafeShopController extends Controller
         $rule = array(
             'name' => 'required|string',
             'address' => 'required|string',
-            'city' => 'required|string',
             'phone_number' => 'required|string',
             'time_open' => 'required|string',
             'time_close' => 'required|string',
@@ -65,7 +64,6 @@ class CafeShopController extends Controller
         $dataInsert = [
             'name' => $request->name,
             'address' => $request->address,
-            'city' => $request->city,
             'phone_number' => $request->phone_number,
             'time_open' => $request->time_open,
             'time_close' => $request->time_close,
@@ -110,7 +108,7 @@ class CafeShopController extends Controller
             $shop->bookmark = true;
         $shop->isOpen = $this->testDate($shop->time_open, $shop->time_close);
         $shop->photoUrl = Image::where('cafeShop_id', '=', $shop->id)->selectRaw('photoUrl')->get();
-
+        $shop->user = User::where('id','=',$shop->user_id)->first();
         return new CafeShopResource($shop);
     }
     public function update(Request $request, $id)
@@ -128,7 +126,6 @@ class CafeShopController extends Controller
         $rule = array(
             'name' => 'required|string',
             'address' => 'required|string',
-            'city' => 'required|string',
             'phone_number' => 'required|string',
             'time_open' => 'required|string',
             'time_close' => 'required|string',
@@ -155,7 +152,6 @@ class CafeShopController extends Controller
         $dataInsert = [
             'name' => $request->name,
             'address' => $request->address,
-            'city' => $request->city,
             'phone_number' => $request->phone_number,
             'time_open' => $request->time_open,
             'time_close' => $request->time_close,
@@ -217,7 +213,6 @@ class CafeShopController extends Controller
             ->where(
                 [
                     ['name', 'like', "%$keyword->name%"],
-                    ['city', 'like', "%$keyword->address%"],
                     ['air_conditioner', '=', $keyword->air_conditioner],
                     ['approve', '=', '1']
                 ]
@@ -235,7 +230,6 @@ class CafeShopController extends Controller
             ->where(
                 [
                     ['name', 'like', "%$keyword->name%"],
-                    ['city', 'like', "%$keyword->address%"],
                     ['air_conditioner', '=', $keyword->air_conditioner],
                     ['approve', '=', '1']
                 ]
@@ -250,7 +244,6 @@ class CafeShopController extends Controller
             ->where(
                 [
                     ['name', 'like', "%$keyword->name%"],
-                    ['city', 'like', "%$keyword->address%"],
                     ['approve', '=', '1']
                 ]
             )->paginate(3);
@@ -266,7 +259,6 @@ class CafeShopController extends Controller
             ->where(
                 [
                     ['name', 'like', "%$keyword->name%"],
-                    ['city', 'like', "%$keyword->address%"],
                     ['approve', '=', '1']
                 ]
             )->paginate(3);
