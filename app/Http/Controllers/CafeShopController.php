@@ -194,10 +194,21 @@ class CafeShopController extends Controller
         } else {
             return response()->json(['error' => true, 'message' => "Login to Continue"]);
         }
-        $shopDelete = CafeShop::where([
-            ['id', '=', $id],
-            ['user_id', '=', $userid]
-        ])->delete();
+        if(auth()->user()->role == 0)
+        {
+            $shopDelete = CafeShop::where([
+                ['id', '=', $id]
+            ])->delete();
+    
+        }
+        if(auth()->user()->role == 1)
+        {
+            $shopDelete = CafeShop::where([
+                ['id', '=', $id],
+                ['user_id', '=', $userid]
+            ])->delete();
+        }
+      
 
         // if($shopDelete->user->id != $userid ) return response()->json(['error' =>true,'message'=> 'Unauthorized'], 401);
 
